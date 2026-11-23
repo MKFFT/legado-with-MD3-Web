@@ -97,8 +97,9 @@ fun BackupConfigRouteScreen(
     val restoreFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri -> uri?.let { viewModel.onIntent(BackupConfigIntent.RestoreLocal(it.toString())) } }
+    // ImportOldData.importUri 的 content 分支按目录列举子文件，必须给目录树 uri 而非单文件 uri
     val importOldLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
+        ActivityResultContracts.OpenDocumentTree()
     ) { uri -> uri?.let { ImportOldData.importUri(context, it) } }
 
     LaunchedEffect(Unit) {
@@ -109,7 +110,7 @@ fun BackupConfigRouteScreen(
                     backupAndSelectLauncher.launch(null)
                 BackupConfigEffect.LaunchRestoreFilePicker ->
                     restoreFileLauncher.launch(arrayOf("application/zip"))
-                BackupConfigEffect.LaunchImportOldDataPicker -> importOldLauncher.launch(arrayOf("*/*"))
+                BackupConfigEffect.LaunchImportOldDataPicker -> importOldLauncher.launch(null)
                 is BackupConfigEffect.RequestStoragePermission -> {
                     PermissionsCompat.Builder()
                         .addPermissions(*Permissions.Group.STORAGE)
