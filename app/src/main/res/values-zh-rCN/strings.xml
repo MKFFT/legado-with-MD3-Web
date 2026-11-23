@@ -742,6 +742,8 @@
     <string name="e_ink_mode_detail">去除动画，优化电纸书使用体验</string>
     <string name="web_menu">Web 服务</string>
     <string name="web_port_title">Web 端口</string>
+    <string name="web_service_password_title">Web 服务密码</string>
+    <string name="web_service_password_summary">Web 服务的访问密码。留空时启动服务会自动生成一个，可改为自定义密码；清空后下次启动将重新生成。</string>
     <string name="web_port_summary">当前端口 %s</string>
     <string name="qr_share">二维码分享</string>
     <string name="str_share">字符串分享</string>

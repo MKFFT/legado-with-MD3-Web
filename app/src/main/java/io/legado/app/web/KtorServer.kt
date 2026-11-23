@@ -14,6 +14,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.utils.io.readAvailable
+import io.ktor.websocket.CloseReason
+import io.ktor.websocket.close
 import io.legado.app.api.ReturnData
 import io.legado.app.api.controller.BookController
 import io.legado.app.api.controller.BookSourceController
@@ -32,8 +34,13 @@ import kotlinx.coroutines.withContext
 import splitties.init.appCtx
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.security.MessageDigest
 
-class KtorServer(private val port: Int) {
+class KtorServer(
+    private val port: Int,
+    // 每次请求时重新读取，修改密码无需重启服务
+    private val passwordProvider: () -> String,
+) {
     private var server: EmbeddedServer<*, *>? = null
     private var wsServer: EmbeddedServer<*, *>? = null
     private val assetsWeb = AssetsWeb("web")
@@ -63,6 +70,10 @@ class KtorServer(private val port: Int) {
                 post("/saveBookProgress") { handlePost { BookController.saveBookProgress(it) } }
                 post("/addLocalBook") {
                     WebService.serve()
+                    if (!call.isAuthorized()) {
+                        call.respond(HttpStatusCode.Unauthorized)
+                        return@post
+                    }
                     val multipart = call.receiveMultipart()
                     var fileName: String? = null
                     val tempFile = File(appCtx.cacheDir, "upload_${System.currentTimeMillis()}")
@@ -156,12 +167,24 @@ class KtorServer(private val port: Int) {
             install(WebSockets)
             routing {
                 webSocket("/bookSourceDebug") {
+                    if (!call.isAuthorized()) {
+                        close(CloseReason(CloseReason.Codes.NORMAL, "unauthorized"))
+                        return@webSocket
+                    }
                     BookSourceDebugWebSocket(this).handle()
                 }
                 webSocket("/rssSourceDebug") {
+                    if (!call.isAuthorized()) {
+                        close(CloseReason(CloseReason.Codes.NORMAL, "unauthorized"))
+                        return@webSocket
+                    }
                     RssSourceDebugWebSocket(this).handle()
                 }
                 webSocket("/searchBook") {
+                    if (!call.isAuthorized()) {
+                        close(CloseReason(CloseReason.Codes.NORMAL, "unauthorized"))
+                        return@webSocket
+                    }
                     BookSearchWebSocket(this).handle()
                 }
             }
@@ -177,6 +200,10 @@ class KtorServer(private val port: Int) {
         block: suspend (String?) -> ReturnData
     ) {
         WebService.serve()
+        if (!call.isAuthorized()) {
+            call.respond(HttpStatusCode.Unauthorized)
+            return
+        }
         try {
             val postData = call.receiveText()
             val returnData = block(postData)
@@ -191,6 +218,10 @@ class KtorServer(private val port: Int) {
         block: (Map<String, List<String>>) -> ReturnData?
     ) {
         WebService.serve()
+        if (!call.isAuthorized()) {
+            call.respond(HttpStatusCode.Unauthorized)
+            return
+        }
         try {
             val parameters = call.queryParameters.entries()
                 .associate { it.key to it.value }
@@ -217,6 +248,25 @@ class KtorServer(private val port: Int) {
         } else {
             call.respond(returnData)
         }
+    }
+
+    /**
+     * 校验访问密码。密码为空（未启用）直接放行；
+     * 接受 Authorization: Bearer <token> 头或 ?token=<token> 查询参数。
+     */
+    private fun ApplicationCall.isAuthorized(): Boolean {
+        val password = passwordProvider()
+        if (password.isBlank()) return true
+        val provided = request.headers[HttpHeaders.Authorization]
+            ?.takeIf { it.startsWith("Bearer ", ignoreCase = true) }
+            ?.substring(7)?.trim()
+            ?: request.queryParameters["token"]?.trim()
+        if (provided.isNullOrEmpty()) return false
+        // 常量时间比较，避免逐字节泄漏密码前缀
+        return MessageDigest.isEqual(
+            provided.toByteArray(),
+            password.toByteArray()
+        )
     }
 
     companion object {

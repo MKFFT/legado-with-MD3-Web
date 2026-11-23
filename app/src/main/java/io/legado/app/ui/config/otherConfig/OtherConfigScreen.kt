@@ -245,6 +245,15 @@ fun OtherConfigScreen(
                     )
                 }
 
+                SearchableSetting("other.web_service_password") {
+                    InputSettingItem(
+                        title = stringResource(R.string.web_service_password_title),
+                        description = stringResource(R.string.web_service_password_summary),
+                        value = state.webServicePassword,
+                        onConfirm = { onIntent(OtherConfigIntent.WebServicePasswordChanged(it)) }
+                    )
+                }
+
                 SearchableSetting("other.clear_webview_data") {
                     ClickableSettingItem(
                         title = stringResource(R.string.clear_webview_data),

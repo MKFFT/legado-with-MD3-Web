@@ -773,6 +773,8 @@
     <string name="e_ink_mode_detail">Remove animations and optimize the experience of using E-paper books</string>
     <string name="web_menu">Web service</string>
     <string name="web_port_title">Web Port</string>
+    <string name="web_service_password_title">Web Service Password</string>
+    <string name="web_service_password_summary">Access password for the web service. Leave it to the app to auto-generate one when the service starts; set your own to override. Clearing it restores auto-generation on next start.</string>
     <string name="web_port_summary">Current port %s</string>
     <string name="qr_share">QR code sharing</string>
     <string name="str_share">Strings sharing</string>

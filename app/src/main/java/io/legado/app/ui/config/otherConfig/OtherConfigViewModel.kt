@@ -123,6 +123,9 @@ class OtherConfigViewModel(
                     },
                 ) { it.copy(webPort = intent.value) }
             }
+            is OtherConfigIntent.WebServicePasswordChanged ->
+                // 服务端每次请求都重新读取密码，改完即时生效，无需重启 WebService
+                updateOtherSetting { it.copy(webServicePassword = intent.value.trim()) }
             is OtherConfigIntent.ProcessTextChanged -> setProcessTextEnable(intent.value)
             is OtherConfigIntent.RecordLogChanged ->
                 updateOtherSetting { it.copy(recordLog = intent.value) }
@@ -359,6 +362,7 @@ private fun OtherSettings.toUiState(current: OtherConfigUiState): OtherConfigUiS
         blockSourceBrowser = blockSourceBrowser,
         sourceEditMaxLine = sourceEditMaxLine,
         webPort = webPort,
+        webServicePassword = webServicePassword,
         processText = processText,
         recordLog = recordLog,
         recordHeapDump = recordHeapDump,

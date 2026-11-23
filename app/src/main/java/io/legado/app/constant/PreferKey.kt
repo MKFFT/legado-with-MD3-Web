@@ -81,6 +81,7 @@ object PreferKey {
     const val threadCount = "threadCount"
     const val cacheBookThreadCount = "cacheBookThreadCount"
     const val webPort = "webPort"
+    const val webServicePassword = "webServicePassword"
     const val keepLight = "keep_light"
     const val readSliderMode = "read_slider_mode"
     const val webService = "webService"

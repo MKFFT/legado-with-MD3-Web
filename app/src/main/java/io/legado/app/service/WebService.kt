@@ -38,14 +38,19 @@ import org.koin.android.ext.android.inject
 import splitties.init.appCtx
 import splitties.systemservices.powerManager
 import splitties.systemservices.wifiManager
+import java.security.SecureRandom
 
 class WebService : BaseService() {
 
     private val otherSettingsGateway by inject<OtherSettingsGateway>()
+    private val secureRandom = SecureRandom()
 
     companion object {
         var isRun = false
         var hostAddress = ""
+
+        // 去掉易混淆字符（0/O、1/l/I）的小写字母数字集
+        private const val PASSWORD_CHARS = "abcdefghjkmnpqrstuvwxyz23456789"
 
         fun start(context: Context) {
             context.startService<WebService>()
@@ -155,9 +160,25 @@ class WebService : BaseService() {
                 wifiLock?.acquire()
             }
 
-            else -> upWebServer()
+            else -> lifecycleScope.launch {
+                ensureWebServicePassword()
+                upWebServer()
+            }
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    /**
+     * 首次启动 Web 服务时自动生成随机访问密码；
+     * 用户在设置中清空密码后，下次启动也会重新生成，保证服务默认带认证。
+     */
+    private suspend fun ensureWebServicePassword() {
+        if (otherSettingsGateway.currentSettings.webServicePassword.isBlank()) {
+            val password = buildString {
+                repeat(8) { append(PASSWORD_CHARS[secureRandom.nextInt(PASSWORD_CHARS.length)]) }
+            }
+            otherSettingsGateway.update { it.copy(webServicePassword = password) }
+        }
     }
 
     override fun onDestroy() {
@@ -179,7 +200,9 @@ class WebService : BaseService() {
         val addressList = NetworkUtils.getLocalIPAddress()
         if (addressList.any()) {
             val port = getPort()
-            ktorServer = KtorServer(port)
+            ktorServer = KtorServer(port) {
+                otherSettingsGateway.currentSettings.webServicePassword
+            }
             try {
                 ktorServer?.start()
                 ktorServer?.startWebSocket(port + 1)

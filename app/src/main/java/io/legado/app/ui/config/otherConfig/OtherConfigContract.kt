@@ -27,6 +27,7 @@ data class OtherConfigUiState(
     val blockSourceBrowser: Boolean = false,
     val sourceEditMaxLine: Int = Int.MAX_VALUE,
     val webPort: Int = 1122,
+    val webServicePassword: String = "",
     val processText: Boolean = true,
     val recordLog: Boolean = false,
     val recordHeapDump: Boolean = false,
@@ -99,6 +100,7 @@ sealed interface OtherConfigIntent {
     data class BlockSourceBrowserChanged(val value: Boolean) : OtherConfigIntent
     data class SourceEditMaxLineChanged(val value: Int) : OtherConfigIntent
     data class WebPortChanged(val value: Int) : OtherConfigIntent
+    data class WebServicePasswordChanged(val value: String) : OtherConfigIntent
     data class ProcessTextChanged(val value: Boolean) : OtherConfigIntent
     data class RecordLogChanged(val value: Boolean) : OtherConfigIntent
     data class RecordHeapDumpChanged(val value: Boolean) : OtherConfigIntent

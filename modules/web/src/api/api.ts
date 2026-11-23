@@ -2,7 +2,7 @@
 /** https://github.com/gedoor/legado/tree/master/app/src/main/java/io/legado/app/web */
 
 import type { webReadConfig } from '@/web'
-import ajax from './axios'
+import ajax, { webServicePassword_localStorage_key } from './axios'
 import type {
   BaseBook,
   Book,
@@ -20,6 +20,14 @@ export type LeagdoApiResponse<T> = {
 
 export let legado_http_entry_point = ''
 export let legado_webSocket_entry_point = ''
+
+/** 浏览器 WebSocket 无法自定义请求头，访问密码通过 ?token= 查询参数传递 */
+const wsUrl = (path: string) => {
+  const url = new URL(path, legado_webSocket_entry_point)
+  const token = localStorage.getItem(webServicePassword_localStorage_key)
+  if (token) url.searchParams.set('token', token)
+  return url
+}
 
 let wsOnError: typeof WebSocket.prototype.onerror = () => {}
 let wsOnMessage: typeof WebSocket.prototype.onmessage = () => {}
@@ -96,9 +104,7 @@ const search = (
   onReceive: (data: SeachBook[]) => void,
   onFinish: () => void,
 ) => {
-  const socket = new WebSocket(
-    new URL('searchBook', legado_webSocket_entry_point),
-  )
+  const socket = new WebSocket(wsUrl('searchBook'))
   socket.onerror = wsOnError
 
   socket.onopen = () => {
@@ -152,10 +158,7 @@ const debug = (
   /** @type {(data: string) => void} */ onReceive: (data: string) => void,
   /** @type {() => void} */ onFinish: () => void,
 ) => {
-  const url = new URL(
-    `${isBookSource ? 'bookSource' : 'rssSource'}Debug`,
-    legado_webSocket_entry_point,
-  )
+  const url = wsUrl(`${isBookSource ? 'bookSource' : 'rssSource'}Debug`)
 
   const socket = new WebSocket(url)
   socket.onerror = wsOnError

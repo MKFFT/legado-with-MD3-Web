@@ -20,6 +20,7 @@ data class OtherSettings(
     val webServiceWakeLock: Boolean = false,
     val sourceEditMaxLine: Int = Int.MAX_VALUE,
     val webPort: Int = 1122,
+    val webServicePassword: String = "",
     val processText: Boolean = true,
     val recordLog: Boolean = false,
     val recordHeapDump: Boolean = false,
