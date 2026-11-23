@@ -30,3 +30,9 @@ replay_pid*.log
 
 # 本地测试书源，不入库
 /resource/
+
+# Mimosa 安全扫描的本地运行状态
+.mimosa/
+# Windows 资源管理器
+Thumbs.db
+Desktop.ini
