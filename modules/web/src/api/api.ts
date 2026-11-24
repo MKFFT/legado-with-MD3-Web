@@ -70,11 +70,12 @@ const saveBookProgress = (bookProgress: BookProgress) =>
 /**主要在直接关闭浏览器情况下可靠发送书籍进度 */
 const saveBookProgressWithBeacon = (bookProgress: BookProgress) => {
   if (!bookProgress) return
+  // beacon 不能自定义请求头，访问密码只能通过 ?token= 传递（与 WebSocket 同口径）
+  const url = new URL('saveBookProgress', legado_http_entry_point)
+  const token = localStorage.getItem(webServicePassword_localStorage_key)
+  if (token) url.searchParams.set('token', token)
   // 常规请求可能会被取消 使用Fetch keep-alive 或者 navigator.sendBeacon
-  navigator.sendBeacon(
-    new URL('saveBookProgress', legado_http_entry_point),
-    JSON.stringify(bookProgress),
-  )
+  navigator.sendBeacon(url, JSON.stringify(bookProgress))
 }
 
 const getBookShelf = () => ajax.get<LeagdoApiResponse<Book[]>>('getBookshelf')

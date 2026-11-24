@@ -56,6 +56,7 @@ class KtorServer(
             install(CORS) {
                 anyHost()
                 allowHeader(HttpHeaders.ContentType)
+                allowHeader(HttpHeaders.Authorization)
                 allowMethod(HttpMethod.Options)
                 allowMethod(HttpMethod.Post)
                 allowMethod(HttpMethod.Get)

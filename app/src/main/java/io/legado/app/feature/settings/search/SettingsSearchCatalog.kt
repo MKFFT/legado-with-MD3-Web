@@ -135,6 +135,7 @@ object SettingsSearchCatalog {
         SettingsSearchItem("other.source_edit_text_max_line", SettingsSearchPage.Other, R.string.source_edit_text_max_line, groupIndex = 0, groupTitleRes = R.string.other_setting),
         SettingsSearchItem("other.direct_link_upload_rule", SettingsSearchPage.Other, R.string.direct_link_upload_rule, groupIndex = 0, groupTitleRes = R.string.other_setting, descriptionRes = R.string.direct_link_upload_rule_summary),
         SettingsSearchItem("other.web_port_title", SettingsSearchPage.Other, R.string.web_port_title, groupIndex = 0, groupTitleRes = R.string.other_setting),
+        SettingsSearchItem("other.web_service_password", SettingsSearchPage.Other, R.string.web_service_password_title, groupIndex = 0, groupTitleRes = R.string.other_setting, descriptionRes = R.string.web_service_password_summary),
         SettingsSearchItem("other.clear_webview_data", SettingsSearchPage.Other, R.string.clear_webview_data, groupIndex = 0, groupTitleRes = R.string.other_setting, descriptionRes = R.string.clear_webview_data_summary),
         SettingsSearchItem("other.block_source_browser", SettingsSearchPage.Other, R.string.block_source_browser, groupIndex = 0, groupTitleRes = R.string.other_setting, descriptionRes = R.string.block_source_browser_summary),
         SettingsSearchItem("other.add_to_text_context_menu_t", SettingsSearchPage.Other, R.string.add_to_text_context_menu_t, groupIndex = 0, groupTitleRes = R.string.other_setting, descriptionRes = R.string.add_to_text_context_menu_s),
