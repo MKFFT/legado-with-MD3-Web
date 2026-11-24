@@ -13,7 +13,7 @@ LocalSend / 文件管理器。
 和 homebox 的差异：默认长期运行，动态服务 `build/apk-output` 里最新的
 APK。重新打包不需要重启服务，手机刷新页面即可拿到新包。
 
-用法（一般通过 apk_share.bat 调用）：
+用法（一般通过 apk_share.sh 调用）：
   apk_share.py                 启动（已在跑则只打开二维码页）
   apk_share.py --stop          停止后台服务
   apk_share.py --list-hosts    列出候选局域网 IP
@@ -506,7 +506,7 @@ class Handler(BaseHTTPRequestHandler):
             meta_line = f"{info['size_text']} · 打包于 {info['mtime_text']}"
         else:
             file_line = "等待 build/apk-output 里出现 APK"
-            meta_line = "先运行 apk_build.bat 打包；此页会自动刷新"
+            meta_line = "先运行 apk_build.sh 打包；此页会自动刷新"
         return f"""<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -542,7 +542,7 @@ class Handler(BaseHTTPRequestHandler):
     手机和电脑需在同一 Wi-Fi；首次运行若 Windows 防火墙弹窗请选「允许」。<br>
     手机下载完点通知栏 / 浏览器下载项的 APK 安装；首次需允许「安装未知应用」。<br>
     重新打包后本页自动刷新，手机浏览器刷新下载页即可拿到新包。<br>
-    停止服务：<code>apk_share.bat --stop</code>。
+    停止服务：<code>apk_share.sh --stop</code>。
   </div>
 </div>
 <script>
@@ -555,7 +555,7 @@ async function refresh() {{
     document.getElementById('file').textContent = name;
     document.getElementById('meta').textContent =
       j.name ? (j.size_text + ' · 打包于 ' + j.mtime_text)
-             : '先运行 apk_build.bat 打包；此页会自动刷新';
+             : '先运行 apk_build.sh 打包；此页会自动刷新';
     document.getElementById('count').textContent = j.downloads ?? 0;
     document.getElementById('last').textContent = j.last_download_text || '—';
     document.title = j.name ? ('Legado 分享 · ' + j.name) : 'Legado 局域网更新';
@@ -576,7 +576,7 @@ refresh(); setInterval(refresh, 2000);
         else:
             body = """
   <div class="file">还没有可下载的 APK</div>
-  <div class="meta">请先在电脑上运行 apk_build.bat 打包，然后刷新本页</div>"""
+  <div class="meta">请先在电脑上运行 apk_build.sh 打包，然后刷新本页</div>"""
         return f"""<!DOCTYPE html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -639,12 +639,12 @@ def print_banner(info: dict | None, host: str, port: int, token: str, out_dir: P
         print(f" 当前 APK : {info['name']}  ({info['size_text']})")
         print(f" 打包时间 : {info['mtime_text']}")
     else:
-        print(" 当前 APK : （还没有，先运行 apk_build.bat）")
+        print(" 当前 APK : （还没有，先运行 apk_build.sh）")
     print(f" 手机地址 : http://{host}:{port}/s/{token}/")
     print(f" 电脑二维码: http://127.0.0.1:{port}/qr")
     print()
     print(" 手机和电脑要在同一 Wi-Fi；Windows 防火墙弹窗请选「允许」。")
-    print(" 停止：本窗口 Ctrl+C，或另开窗口运行 apk_share.bat --stop")
+    print(" 停止：本窗口 Ctrl+C，或另开窗口运行 apk_share.sh --stop")
     print("=" * 62)
     print()
 
@@ -698,7 +698,7 @@ def main(argv: list[str] | None = None) -> int:
     if running is not None:
         admin_url = f"http://127.0.0.1:{running}/qr"
         print(f"分发服务已在运行: {admin_url}")
-        open_admin(running, args.no_open)
+        print("（需要二维码页时直接在浏览器打开上面的地址）")
         return 0
 
     host = args.host or default_route_ip() or (candidate_ips() or ["127.0.0.1"])[0]
